@@ -122,24 +122,65 @@ const ExportResults: React.FC<ExportResultsProps> = ({ units, stats }) => {
             <div className="max-w-[210mm] mx-auto bg-white shadow-2xl p-[15mm] md:p-[20mm] print:shadow-none print:p-0 print:max-w-none">
               <style>{`
                 @media print {
-                  body * { visibility: hidden; }
-                  .print-content, .print-content * { visibility: visible; }
+                  /* Hide everything except the print content */
+                  body * { 
+                    visibility: hidden; 
+                    margin: 0;
+                    padding: 0;
+                  }
+                  .print-content, .print-content * { 
+                    visibility: visible; 
+                  }
                   .print-content { 
                     position: absolute; 
                     left: 0; 
                     top: 0; 
                     width: 100%;
+                    margin: 0;
+                    padding: 0;
+                    background: white;
                   }
+                  
+                  /* Reset any potential offsets from parents */
+                  #root, .min-h-screen, main, .fixed {
+                    position: static !important;
+                    height: auto !important;
+                    min-height: 0 !important;
+                    overflow: visible !important;
+                    margin: 0 !important;
+                    padding: 0 !important;
+                  }
+
                   @page {
                     size: A4;
                     margin: 15mm 10mm;
                   }
+
+                  .page-break { 
+                    display: block;
+                    page-break-before: always; 
+                    break-before: page;
+                    margin-top: 0;
+                    padding-top: 10mm; /* Small gap after break */
+                  }
+                  
+                  /* Prevent table rows from breaking across pages */
+                  tr { 
+                    page-break-inside: avoid; 
+                    break-inside: avoid;
+                  }
+                  
+                  thead { 
+                    display: table-header-group; 
+                  }
                 }
+
                 .report-body {
                   font-family: 'Inter', -apple-system, sans-serif;
                   color: #1e293b;
                   line-height: 1.4;
                   font-size: 10pt;
+                  background: white;
                 }
                 .report-header {
                   border-bottom: 2px solid #1e293b;
@@ -178,10 +219,9 @@ const ExportResults: React.FC<ExportResultsProps> = ({ units, stats }) => {
                   display: flex;
                   justify-content: space-between;
                   page-break-inside: avoid;
+                  break-inside: avoid;
                 }
                 .sig-box { width: 45%; border-top: 1px solid #1e293b; padding-top: 8px; text-align: center; font-size: 8pt; color: #64748b; }
-                
-                .page-break { page-break-before: always; margin-top: 40px; }
                 
                 .voting-grid {
                   display: grid;

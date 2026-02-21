@@ -1,5 +1,5 @@
 {
-  "name": "SVJ Prezence v2.6 Professional",
-  "description": "Pokročilý systém pro správu prezence a hlasování na schůzích SVJ. Verze 2.6 přináší integrovaný náhled protokolu pro bezproblémový tisk v režimu webové aplikace na iPadu.",
+  "name": "SVJ Prezence v2.7 Professional",
+  "description": "Pokročilý systém pro správu prezence a hlasování na schůzích SVJ. Verze 2.7 opravuje tiskové sestavy a rozvržení stránek pro PDF export na iPadu.",
   "requestFramePermissions": []
 }

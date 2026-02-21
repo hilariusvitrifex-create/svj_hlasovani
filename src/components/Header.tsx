@@ -50,7 +50,7 @@ const Header: React.FC<HeaderProps> = ({
           </div>
           <div className="flex-1">
             <h1 className="text-xl font-black text-slate-900 leading-tight flex items-center gap-2">
-              SVJ Prezence <span className="text-xs font-black bg-indigo-600 text-white px-2 py-0.5 rounded-md shadow-sm">v2.6</span>
+              SVJ Prezence <span className="text-xs font-black bg-indigo-600 text-white px-2 py-0.5 rounded-md shadow-sm">v2.7</span>
               {isSyncing && (
                 <span className="text-[9px] bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded-full animate-pulse border border-indigo-100">
                   Ukládám...
