@@ -115,17 +115,18 @@ const UnitButton: React.FC<UnitButtonProps> = ({
       {!isVotingMode && (
         <button 
           onClick={(e) => { e.stopPropagation(); onEdit(); }}
-          className={`absolute top-1 right-1 p-2 rounded-full border shadow-sm transition-all z-20
+          className={`absolute -top-1 -right-1 p-2.5 rounded-full border-2 shadow-lg transition-all z-30
             ${isEdited 
-              ? 'bg-red-600 text-white border-red-500 opacity-100 scale-100' 
-              : 'bg-white text-slate-400 border-slate-200 opacity-100 md:opacity-0 md:group-hover:opacity-100 md:scale-0 md:group-hover:scale-100'
+              ? 'bg-red-600 text-white border-red-500 animate-pulse' 
+              : isPresent 
+                ? 'bg-white text-emerald-600 border-emerald-500' 
+                : 'bg-white text-slate-400 border-slate-200 hover:text-indigo-600 hover:border-indigo-200'
             }
-            ${isPresent && !isEdited ? 'bg-emerald-500 text-white border-emerald-400' : ''}
             active:scale-90 touch-manipulation
           `}
           title={isEdited ? `Původně: ${unit.originalOwnerName}` : "Editovat"}
         >
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
         </button>
