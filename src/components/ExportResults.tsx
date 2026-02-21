@@ -51,7 +51,232 @@ const ExportResults: React.FC<ExportResultsProps> = ({ units, stats }) => {
   }).format(val);
 
   const handlePrint = () => {
-    window.print();
+    // Create a hidden iframe for printing to isolate styles and avoid layout issues
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    document.body.appendChild(iframe);
+
+    const quorumText = stats.totalShare > 50 ? 'ANO' : 'NE';
+    const quorumColor = stats.totalShare > 50 ? '#059669' : '#dc2626';
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Protokol SVJ</title>
+        <style>
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;800&display=swap');
+          @page { size: A4; margin: 15mm 10mm; }
+          body { 
+            font-family: 'Inter', sans-serif; 
+            color: #1e293b; 
+            line-height: 1.4; 
+            font-size: 10pt; 
+            margin: 0;
+            padding: 0;
+            background: white;
+          }
+          .report-header {
+            border-bottom: 2px solid #1e293b;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+          }
+          .report-title h1 {
+            font-size: 18pt;
+            font-weight: 800;
+            margin: 0;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+          }
+          .summary-box {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 25px;
+          }
+          .summary-item { flex: 1; }
+          .summary-label { font-size: 7pt; font-weight: 700; color: #64748b; text-transform: uppercase; margin-bottom: 4px; }
+          .summary-value { font-size: 11pt; font-weight: 800; }
+          
+          table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
+          th { text-align: left; background: #f1f5f9; padding: 8px; border-bottom: 2px solid #94a3b8; font-size: 8pt; font-weight: 700; text-transform: uppercase; }
+          td { padding: 7px 8px; border-bottom: 1px solid #f1f5f9; font-size: 9pt; }
+          
+          .signature-section {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            page-break-inside: avoid;
+          }
+          .sig-box { width: 45%; border-top: 1px solid #1e293b; padding-top: 8px; text-align: center; font-size: 8pt; color: #64748b; }
+          
+          .page-break { page-break-before: always; }
+          
+          .voting-grid {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+          }
+          .vote-res { flex: 1; padding: 15px; border-radius: 10px; border: 1px solid #e2e8f0; text-align: center; }
+          .vote-res.pro { border-left: 5px solid #059669; background: #f0fdf4; }
+          .vote-res.against { border-left: 5px solid #dc2626; background: #fef2f2; }
+          .vote-res.abstain { border-left: 5px solid #d97706; background: #fffbeb; }
+          
+          @media print {
+            body { -webkit-print-color-adjust: exact; }
+          }
+        </style>
+      </head>
+      <body>
+        <div class="report-header">
+          <div class="report-title">
+            <h1>Protokol o účasti</h1>
+            <div style="font-size: 8pt; color: #64748b;">Společenství vlastníků jednotek</div>
+          </div>
+          <div style="font-weight: bold; color: #94a3b8;">Datum: ${dateStr}</div>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-item">
+            <div class="summary-label">Přítomno jednotek</div>
+            <div class="summary-value">${stats.presentCount} / ${stats.totalCount}</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Podíl přítomných</div>
+            <div class="summary-value">${formatShare(stats.totalShare)} %</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-label">Usnášeníschopnost</div>
+            <div class="summary-value" style="color: ${quorumColor}">${quorumText}</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Vchod</th>
+              <th>Prostor</th>
+              <th>Vlastník / Uživatel</th>
+              <th style="text-align: right;">Podíl %</th>
+              <th style="text-align: center;">Účast</th>
+              <th style="text-align: center;">PM</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${units.map(u => `
+              <tr>
+                <td>${u.block}</td>
+                <td>${u.unitNumber}</td>
+                <td style="font-weight: bold;">${u.ownerName}</td>
+                <td style="text-align: right;">${formatShare(u.share)}</td>
+                <td style="text-align: center; color: ${u.isPresent ? '#059669' : '#cbd5e1'}; font-weight: ${u.isPresent ? 'bold' : 'normal'}">
+                  ${u.isPresent ? 'ANO' : 'NE'}
+                </td>
+                <td style="text-align: center; color: ${u.hasPowerOfAttorney ? '#4f46e5' : '#cbd5e1'}; font-weight: ${u.hasPowerOfAttorney ? 'bold' : 'normal'}">
+                  ${u.hasPowerOfAttorney ? 'ANO' : 'NE'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="signature-section">
+          <div class="sig-box">Podpis zapisovatele</div>
+          <div class="sig-box">Podpis předsedy shromáždění</div>
+        </div>
+
+        <div class="page-break"></div>
+
+        <div class="report-header" style="margin-top: 20px;">
+          <div class="report-title">
+            <h1>Výsledky hlasování</h1>
+            <div style="font-size: 8pt; color: #64748b;">Společenství vlastníků jednotek</div>
+          </div>
+          <div style="font-weight: bold; color: #94a3b8;">Datum: ${dateStr}</div>
+        </div>
+
+        <div class="voting-grid">
+          <div class="vote-res pro">
+            <div class="summary-label">PRO</div>
+            <div class="summary-value" style="color: #059669">
+              ${stats.totalShare > 0 ? formatShare((stats.votePro / stats.totalShare) * 100) : '0,00'} %
+            </div>
+            <div style="font-size: 7pt; color: #64748b; margin-top: 4px;">${formatShare(stats.votePro)} % ze všech</div>
+          </div>
+          <div class="vote-res against">
+            <div class="summary-label">PROTI</div>
+            <div class="summary-value" style="color: #dc2626">
+              ${stats.totalShare > 0 ? formatShare((stats.voteAgainst / stats.totalShare) * 100) : '0,00'} %
+            </div>
+            <div style="font-size: 7pt; color: #64748b; margin-top: 4px;">${formatShare(stats.voteAgainst)} % ze všech</div>
+          </div>
+          <div class="vote-res abstain">
+            <div class="summary-label">ZDRŽEL SE</div>
+            <div class="summary-value" style="color: #d97706">
+              ${stats.totalShare > 0 ? formatShare((stats.voteAbstain / stats.totalShare) * 100) : '0,00'} %
+            </div>
+            <div style="font-size: 7pt; color: #64748b; margin-top: 4px;">${formatShare(stats.voteAbstain)} % ze všech</div>
+          </div>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Vchod</th>
+              <th>Prostor</th>
+              <th>Vlastník / Uživatel</th>
+              <th style="text-align: right;">Podíl %</th>
+              <th style="text-align: center;">Hlasoval</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${units.filter(u => u.isPresent).map(u => `
+              <tr>
+                <td>${u.block}</td>
+                <td>${u.unitNumber}</td>
+                <td style="font-weight: bold;">${u.ownerName}</td>
+                <td style="text-align: right;">${formatShare(u.share)}</td>
+                <td style="text-align: center; font-weight: bold; color: ${
+                  u.vote === 'PRO' ? '#059669' : u.vote === 'PROTI' ? '#dc2626' : '#d97706'
+                }">
+                  ${u.vote || '---'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="signature-section">
+          <div class="sig-box">Podpis zapisovatele</div>
+          <div class="sig-box">Podpis předsedy shromáždění</div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const doc = iframe.contentWindow?.document || iframe.contentDocument;
+    if (doc) {
+      doc.open();
+      doc.write(htmlContent);
+      doc.close();
+
+      // Wait for resources to load before printing
+      setTimeout(() => {
+        iframe.contentWindow?.focus();
+        iframe.contentWindow?.print();
+        // Remove iframe after printing dialog closes
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+      }, 500);
+    }
   };
 
   return (
@@ -84,9 +309,9 @@ const ExportResults: React.FC<ExportResultsProps> = ({ units, stats }) => {
       </div>
 
       {showPreview && (
-        <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-md flex flex-col print:bg-white print:p-0">
-          {/* Toolbar - hidden during print */}
-          <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200 print:hidden">
+        <div className="fixed inset-0 z-[200] bg-slate-900/60 backdrop-blur-md flex flex-col">
+          {/* Toolbar */}
+          <div className="flex items-center justify-between px-6 py-4 bg-white border-b border-slate-200">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 bg-indigo-600 text-white rounded-lg flex items-center justify-center">
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -117,70 +342,15 @@ const ExportResults: React.FC<ExportResultsProps> = ({ units, stats }) => {
             </div>
           </div>
 
-          {/* Report Content */}
-          <div className="flex-1 overflow-auto p-4 md:p-12 print:overflow-visible print:p-0">
-            <div className="max-w-[210mm] mx-auto bg-white shadow-2xl p-[15mm] md:p-[20mm] print:shadow-none print:p-0 print:max-w-none">
+          {/* Report Content Preview (React Rendered) */}
+          <div className="flex-1 overflow-auto p-4 md:p-12 bg-slate-100">
+            <div className="max-w-[210mm] mx-auto bg-white shadow-2xl p-[15mm] md:p-[20mm] report-body">
               <style>{`
-                @media print {
-                  /* Hide everything except the print content */
-                  body * { 
-                    visibility: hidden; 
-                    margin: 0;
-                    padding: 0;
-                  }
-                  .print-content, .print-content * { 
-                    visibility: visible; 
-                  }
-                  .print-content { 
-                    position: absolute; 
-                    left: 0; 
-                    top: 0; 
-                    width: 100%;
-                    margin: 0;
-                    padding: 0;
-                    background: white;
-                  }
-                  
-                  /* Reset any potential offsets from parents */
-                  #root, .min-h-screen, main, .fixed {
-                    position: static !important;
-                    height: auto !important;
-                    min-height: 0 !important;
-                    overflow: visible !important;
-                    margin: 0 !important;
-                    padding: 0 !important;
-                  }
-
-                  @page {
-                    size: A4;
-                    margin: 15mm 10mm;
-                  }
-
-                  .page-break { 
-                    display: block;
-                    page-break-before: always; 
-                    break-before: page;
-                    margin-top: 0;
-                    padding-top: 10mm; /* Small gap after break */
-                  }
-                  
-                  /* Prevent table rows from breaking across pages */
-                  tr { 
-                    page-break-inside: avoid; 
-                    break-inside: avoid;
-                  }
-                  
-                  thead { 
-                    display: table-header-group; 
-                  }
-                }
-
                 .report-body {
                   font-family: 'Inter', -apple-system, sans-serif;
                   color: #1e293b;
                   line-height: 1.4;
                   font-size: 10pt;
-                  background: white;
                 }
                 .report-header {
                   border-bottom: 2px solid #1e293b;
@@ -218,10 +388,11 @@ const ExportResults: React.FC<ExportResultsProps> = ({ units, stats }) => {
                   margin-top: 50px;
                   display: flex;
                   justify-content: space-between;
-                  page-break-inside: avoid;
-                  break-inside: avoid;
                 }
                 .sig-box { width: 45%; border-top: 1px solid #1e293b; padding-top: 8px; text-align: center; font-size: 8pt; color: #64748b; }
+                
+                .page-break-preview { border-top: 2px dashed #e2e8f0; margin: 40px 0; position: relative; }
+                .page-break-preview::after { content: 'KONEC STRÁNKY'; position: absolute; top: -10px; left: 50%; transform: translateX(-50%); background: white; padding: 0 10px; font-size: 8px; color: #cbd5e1; font-weight: bold; }
                 
                 .voting-grid {
                   display: grid;
@@ -235,142 +406,135 @@ const ExportResults: React.FC<ExportResultsProps> = ({ units, stats }) => {
                 .vote-res.abstain { border-left: 5px solid #d97706; background: #fffbeb; }
               `}</style>
               
-              <div className="print-content report-body">
-                {/* STRANA 1 */}
-                <div className="report-header">
-                  <div className="report-title">
-                    <h1>Protokol o účasti</h1>
-                    <div className="text-[8pt] text-slate-500 font-medium">Společenství vlastníků jednotek</div>
-                  </div>
-                  <div className="text-[10pt] font-bold text-slate-400">Datum: {dateStr}</div>
+              <div className="report-header">
+                <div className="report-title">
+                  <h1>Protokol o účasti</h1>
+                  <div className="text-[8pt] text-slate-500 font-medium">Společenství vlastníků jednotek</div>
                 </div>
+                <div className="text-[10pt] font-bold text-slate-400">Datum: {dateStr}</div>
+              </div>
 
-                <div className="summary-box">
-                  <div>
-                    <div className="summary-label">Přítomno jednotek</div>
-                    <div className="summary-value">{stats.presentCount} / {stats.totalCount}</div>
-                  </div>
-                  <div>
-                    <div className="summary-label">Podíl přítomných</div>
-                    <div className="summary-value">{formatShare(stats.totalShare)} %</div>
-                  </div>
-                  <div>
-                    <div className="summary-label">Usnášeníschopnost</div>
-                    <div className="summary-value" style={{ color: quorumColor }}>{quorumText}</div>
-                  </div>
+              <div className="summary-box">
+                <div>
+                  <div className="summary-label">Přítomno jednotek</div>
+                  <div className="summary-value">{stats.presentCount} / {stats.totalCount}</div>
                 </div>
+                <div>
+                  <div className="summary-label">Podíl přítomných</div>
+                  <div className="summary-value">{formatShare(stats.totalShare)} %</div>
+                </div>
+                <div>
+                  <div className="summary-label">Usnášeníschopnost</div>
+                  <div className="summary-value" style={{ color: quorumColor }}>{quorumText}</div>
+                </div>
+              </div>
 
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Vchod</th>
-                      <th>Prostor</th>
-                      <th>Vlastník / Uživatel</th>
-                      <th style={{ textAlign: 'right' }}>Podíl %</th>
-                      <th style={{ textAlign: 'center' }}>Účast</th>
-                      <th style={{ textAlign: 'center' }}>PM</th>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Vchod</th>
+                    <th>Prostor</th>
+                    <th>Vlastník / Uživatel</th>
+                    <th style={{ textAlign: 'right' }}>Podíl %</th>
+                    <th style={{ textAlign: 'center' }}>Účast</th>
+                    <th style={{ textAlign: 'center' }}>PM</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {units.map(u => (
+                    <tr key={u.id}>
+                      <td>{u.block}</td>
+                      <td>{u.unitNumber}</td>
+                      <td className="font-semibold">{u.ownerName}</td>
+                      <td style={{ textAlign: 'right' }}>{formatShare(u.share)}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className={u.isPresent ? 'text-emerald-600 font-bold' : 'text-slate-300'}>
+                          {u.isPresent ? 'ANO' : 'NE'}
+                        </span>
+                      </td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className={u.hasPowerOfAttorney ? 'text-indigo-600 font-bold' : 'text-slate-300'}>
+                          {u.hasPowerOfAttorney ? 'ANO' : 'NE'}
+                        </span>
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {units.map(u => (
-                      <tr key={u.id}>
-                        <td>{u.block}</td>
-                        <td>{u.unitNumber}</td>
-                        <td className="font-semibold">{u.ownerName}</td>
-                        <td style={{ textAlign: 'right' }}>{formatShare(u.share)}</td>
-                        <td style={{ textAlign: 'center' }}>
-                          <span className={u.isPresent ? 'text-emerald-600 font-bold' : 'text-slate-300'}>
-                            {u.isPresent ? 'ANO' : 'NE'}
-                          </span>
-                        </td>
-                        <td style={{ textAlign: 'center' }}>
-                          <span className={u.hasPowerOfAttorney ? 'text-indigo-600 font-bold' : 'text-slate-300'}>
-                            {u.hasPowerOfAttorney ? 'ANO' : 'NE'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                  ))}
+                </tbody>
+              </table>
 
-                <div className="signature-section">
-                  <div className="sig-box">Podpis zapisovatele</div>
-                  <div className="sig-box">Podpis předsedy shromáždění</div>
+              <div className="signature-section">
+                <div className="sig-box">Podpis zapisovatele</div>
+                <div className="sig-box">Podpis předsedy shromáždění</div>
+              </div>
+
+              <div className="page-break-preview"></div>
+
+              <div className="report-header">
+                <div className="report-title">
+                  <h1>Výsledky hlasování</h1>
+                  <div className="text-[8pt] text-slate-500 font-medium">Společenství vlastníků jednotek</div>
                 </div>
+                <div className="text-[10pt] font-bold text-slate-400">Datum: {dateStr}</div>
+              </div>
 
-                {/* STRANA 2 */}
-                <div className="page-break">
-                  <div className="report-header">
-                    <div className="report-title">
-                      <h1>Výsledky hlasování</h1>
-                      <div className="text-[8pt] text-slate-500 font-medium">Společenství vlastníků jednotek</div>
-                    </div>
-                    <div className="text-[10pt] font-bold text-slate-400">Datum: {dateStr}</div>
+              <div className="voting-grid">
+                <div className="vote-res pro">
+                  <div className="summary-label">PRO</div>
+                  <div className="summary-value text-emerald-600">
+                    {stats.totalShare > 0 ? formatShare((stats.votePro / stats.totalShare) * 100) : '0,00'} %
                   </div>
-
-                  <div className="voting-grid">
-                    <div className="vote-res pro">
-                      <div className="summary-label">PRO</div>
-                      <div className="summary-value text-emerald-600">
-                        {stats.totalShare > 0 ? formatShare((stats.votePro / stats.totalShare) * 100) : '0,00'} %
-                        <span className="text-[7pt] ml-1 uppercase">z přítomných</span>
-                      </div>
-                      <div className="text-[7pt] text-slate-400 mt-1">{formatShare(stats.votePro)} % ze všech</div>
-                    </div>
-                    <div className="vote-res against">
-                      <div className="summary-label">PROTI</div>
-                      <div className="summary-value text-red-600">
-                        {stats.totalShare > 0 ? formatShare((stats.voteAgainst / stats.totalShare) * 100) : '0,00'} %
-                        <span className="text-[7pt] ml-1 uppercase">z přítomných</span>
-                      </div>
-                      <div className="text-[7pt] text-slate-400 mt-1">{formatShare(stats.voteAgainst)} % ze všech</div>
-                    </div>
-                    <div className="vote-res abstain">
-                      <div className="summary-label">ZDRŽEL SE</div>
-                      <div className="summary-value text-amber-600">
-                        {stats.totalShare > 0 ? formatShare((stats.voteAbstain / stats.totalShare) * 100) : '0,00'} %
-                        <span className="text-[7pt] ml-1 uppercase">z přítomných</span>
-                      </div>
-                      <div className="text-[7pt] text-slate-400 mt-1">{formatShare(stats.voteAbstain)} % ze všech</div>
-                    </div>
-                  </div>
-
-                  <table>
-                    <thead>
-                      <tr>
-                        <th>Vchod</th>
-                        <th>Prostor</th>
-                        <th>Vlastník / Uživatel</th>
-                        <th style={{ textAlign: 'right' }}>Podíl %</th>
-                        <th style={{ textAlign: 'center' }}>Hlasoval</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {units.filter(u => u.isPresent).map(u => (
-                        <tr key={u.id}>
-                          <td>{u.block}</td>
-                          <td>{u.unitNumber}</td>
-                          <td className="font-semibold">{u.ownerName}</td>
-                          <td style={{ textAlign: 'right' }}>{formatShare(u.share)}</td>
-                          <td style={{ textAlign: 'center' }}>
-                            <span className={`font-bold ${
-                              u.vote === 'PRO' ? 'text-emerald-600' : 
-                              u.vote === 'PROTI' ? 'text-red-600' : 
-                              'text-amber-600'
-                            }`}>
-                              {u.vote || '---'}
-                            </span>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-
-                  <div className="signature-section">
-                    <div className="sig-box">Podpis zapisovatele</div>
-                    <div className="sig-box">Podpis předsedy shromáždění</div>
-                  </div>
+                  <div className="text-[7pt] text-slate-400 mt-1">{formatShare(stats.votePro)} % ze všech</div>
                 </div>
+                <div className="vote-res against">
+                  <div className="summary-label">PROTI</div>
+                  <div className="summary-value text-red-600">
+                    {stats.totalShare > 0 ? formatShare((stats.voteAgainst / stats.totalShare) * 100) : '0,00'} %
+                  </div>
+                  <div className="text-[7pt] text-slate-400 mt-1">{formatShare(stats.voteAgainst)} % ze všech</div>
+                </div>
+                <div className="vote-res abstain">
+                  <div className="summary-label">ZDRŽEL SE</div>
+                  <div className="summary-value text-amber-600">
+                    {stats.totalShare > 0 ? formatShare((stats.voteAbstain / stats.totalShare) * 100) : '0,00'} %
+                  </div>
+                  <div className="text-[7pt] text-slate-400 mt-1">{formatShare(stats.voteAbstain)} % ze všech</div>
+                </div>
+              </div>
+
+              <table>
+                <thead>
+                  <tr>
+                    <th>Vchod</th>
+                    <th>Prostor</th>
+                    <th>Vlastník / Uživatel</th>
+                    <th style={{ textAlign: 'right' }}>Podíl %</th>
+                    <th style={{ textAlign: 'center' }}>Hlasoval</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {units.filter(u => u.isPresent).map(u => (
+                    <tr key={u.id}>
+                      <td>{u.block}</td>
+                      <td>{u.unitNumber}</td>
+                      <td className="font-semibold">{u.ownerName}</td>
+                      <td style={{ textAlign: 'right' }}>{formatShare(u.share)}</td>
+                      <td style={{ textAlign: 'center' }}>
+                        <span className={`font-bold ${
+                          u.vote === 'PRO' ? 'text-emerald-600' : 
+                          u.vote === 'PROTI' ? 'text-red-600' : 
+                          'text-amber-600'
+                        }`}>
+                          {u.vote || '---'}
+                        </span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <div className="signature-section">
+                <div className="sig-box">Podpis zapisovatele</div>
+                <div className="sig-box">Podpis předsedy shromáždění</div>
               </div>
             </div>
           </div>
