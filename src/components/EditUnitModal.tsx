@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { Unit } from '../types.ts';
+import { Unit } from '../types';
 
 interface EditUnitModalProps {
   unit: Unit;

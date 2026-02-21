@@ -1,6 +1,6 @@
 
 import React, { useRef, useState } from 'react';
-import { Unit } from '../types.ts';
+import { Unit } from '../types';
 import { GoogleGenAI, Type } from "@google/genai";
 
 interface ImportExportProps {

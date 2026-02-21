@@ -1,12 +1,12 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import Header from './components/Header.tsx';
-import UnitButton from './components/UnitButton.tsx';
-import ImportExport from './components/ImportExport.tsx';
-import ExportResults from './components/ExportResults.tsx';
-import EditUnitModal from './components/EditUnitModal.tsx';
-import { MOCK_UNITS } from './constants.ts';
-import { Unit } from './types.ts';
+import Header from './components/Header';
+import UnitButton from './components/UnitButton';
+import ImportExport from './components/ImportExport';
+import ExportResults from './components/ExportResults';
+import EditUnitModal from './components/EditUnitModal';
+import { MOCK_UNITS } from './constants';
+import { Unit } from './types';
 
 const App: React.FC = () => {
   const [webhookUrl, setWebhookUrl] = useState(() => {
