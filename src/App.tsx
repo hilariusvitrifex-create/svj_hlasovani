@@ -89,6 +89,7 @@ const App: React.FC = () => {
     
     setIsSyncing(true);
     try {
+      console.log("Starting sync for units:", modifiedUnits.length);
       const payload = {
         action: 'export_all', 
         timestamp: new Date().toISOString(),
@@ -101,35 +102,39 @@ const App: React.FC = () => {
             Jednotka: u.unitNumber,
             Vlastník: u.ownerName,
             Vlastnik: u.ownerName
-            // Pole Prezence a PM byla odstraněna z payloadu
           };
         })
       };
 
       const response = await fetch(webhookUrl, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        mode: 'cors',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
         body: JSON.stringify(payload)
       });
 
       if (response.ok) {
+        console.log("Sync successful");
         setUnits(prev => prev.map(u => {
-          const matchedModified = modifiedUnits.find(m => m.id === u.id);
-          if (matchedModified) {
+          const isModified = modifiedUnits.some(m => m.id === u.id);
+          if (isModified) {
             return {
               ...u,
               originalOwnerName: u.ownerName
-              // lastSynced pro prezenci zde neaktualizujeme, protože se nesynchronizovala
             };
           }
           return u;
         }));
-        alert(`Úspěšně uloženo změn jmen: ${modifiedUnits.length}`);
+        setTimeout(() => alert(`Úspěšně uloženo změn jmen: ${modifiedUnits.length}`), 100);
       } else {
-        const errText = await response.text();
+        const errText = await response.text().catch(() => "Neznámá chyba");
         throw new Error(`Server vrátil chybu ${response.status}: ${errText}`);
       }
     } catch (error: any) {
+      console.error("Sync error:", error);
       alert('Chyba při ukládání: ' + error.message);
     } finally {
       setIsSyncing(false);
