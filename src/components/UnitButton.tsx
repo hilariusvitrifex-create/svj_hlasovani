@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Unit } from '../types';
+import { Unit } from '../app-types';
 
 interface UnitButtonProps {
   unit: Unit;

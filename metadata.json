@@ -1,5 +1,5 @@
 {
-  "name": "SVJ Prezence v2.1 Professional",
-  "description": "Pokročilý systém pro správu prezence a hlasování na schůzích SVJ s automatickým výpočtem podílů, kontrolou usnášeníschopnosti a exportem výsledků. Verze 2.1 přináší vylepšené UI a robustní synchronizaci.",
+  "name": "SVJ Prezence v2.2 Professional",
+  "description": "Pokročilý systém pro správu prezence a hlasování na schůzích SVJ. Verze 2.2 opravuje chyby v rozlišení souborů pro produkční nasazení.",
   "requestFramePermissions": []
 }

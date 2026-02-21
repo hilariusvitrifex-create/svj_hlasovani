@@ -5,8 +5,8 @@ import UnitButton from './components/UnitButton';
 import ImportExport from './components/ImportExport';
 import ExportResults from './components/ExportResults';
 import EditUnitModal from './components/EditUnitModal';
-import { MOCK_UNITS } from './constants';
-import { Unit } from './types';
+import { MOCK_UNITS } from './app-constants';
+import { Unit } from './app-types';
 
 const App: React.FC = () => {
   const [webhookUrl, setWebhookUrl] = useState(() => {
