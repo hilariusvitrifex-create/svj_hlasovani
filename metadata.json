@@ -1,5 +1,5 @@
 {
-  "name": "SVJ Prezence v3.0 Professional",
-  "description": "Pokročilý systém pro správu prezence a hlasování na schůzích SVJ. Verze 3.0 přináší plnohodnotná modální okna pro zabezpečení resetu a synchronizace heslem.",
+  "name": "SVJ Prezence v3.1 Professional",
+  "description": "Pokročilý systém pro správu prezence a hlasování na schůzích SVJ. Verze 3.1 opravuje resetovací pojistku (nyní globální) a mění výchozí heslo na 1205.",
   "requestFramePermissions": []
 }
