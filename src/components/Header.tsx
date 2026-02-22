@@ -5,7 +5,6 @@ interface HeaderProps {
   presentCount: number;
   totalCount: number;
   totalShare: number;
-  onReset: () => void;
   isSyncing?: boolean;
   isVotingMode?: boolean;
   onToggleVoting?: () => void;
@@ -20,7 +19,6 @@ const Header: React.FC<HeaderProps> = ({
   presentCount, 
   totalCount, 
   totalShare, 
-  onReset, 
   isSyncing,
   isVotingMode,
   onToggleVoting,
@@ -50,7 +48,7 @@ const Header: React.FC<HeaderProps> = ({
           </div>
           <div className="flex-1">
             <h1 className="text-xl font-black text-slate-900 leading-tight flex items-center gap-2">
-              SVJ Prezence <span className="text-xs font-black bg-indigo-600 text-white px-2 py-0.5 rounded-md shadow-sm">v3.0</span>
+              SVJ Prezence <span className="text-xs font-black bg-indigo-600 text-white px-2 py-0.5 rounded-md shadow-sm">v3.2</span>
               {isSyncing && (
                 <span className="text-[9px] bg-indigo-50 text-indigo-500 px-1.5 py-0.5 rounded-full animate-pulse border border-indigo-100">
                   Ukládám...
@@ -59,16 +57,6 @@ const Header: React.FC<HeaderProps> = ({
             </h1>
             <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Shromáždění vlastníků</p>
           </div>
-          
-          <button 
-            onClick={onReset}
-            className="lg:hidden p-2 text-red-600 bg-red-50 rounded-lg active:scale-95"
-            title="Resetovat vše"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-          </button>
         </div>
 
         <div className="flex flex-wrap items-center justify-center lg:justify-end gap-4 md:gap-6 w-full lg:w-auto">
@@ -136,16 +124,6 @@ const Header: React.FC<HeaderProps> = ({
               </div>
             </button>
           )}
-
-          <button
-            onClick={onReset}
-            className="hidden lg:flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-xl hover:bg-red-700 transition-all font-bold text-sm shadow-md shadow-red-100 active:scale-95"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Resetovat
-          </button>
         </div>
       </div>
     </header>

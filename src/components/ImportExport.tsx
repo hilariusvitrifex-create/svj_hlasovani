@@ -37,7 +37,7 @@ const ImportExport: React.FC<ImportExportProps> = ({
   const [passwordError, setPasswordError] = useState(false);
 
   // Default password if not set in environment
-  const SYNC_PASSWORD = import.meta.env.VITE_SYNC_PASSWORD || 'svj123';
+  const SYNC_PASSWORD = import.meta.env.VITE_SYNC_PASSWORD || '1205';
 
   const handleSyncClick = () => {
     setShowPasswordModal(true);
@@ -192,7 +192,7 @@ const ImportExport: React.FC<ImportExportProps> = ({
         </div>
 
         <button
-          onClick={() => setShowResetModal(true)}
+          onClick={onReset}
           className="w-full py-3 bg-red-50 text-red-600 border-2 border-red-100 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-100 transition-all flex items-center justify-center gap-2"
         >
           <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,37 +247,7 @@ const ImportExport: React.FC<ImportExportProps> = ({
           </div>
         )}
 
-        {/* Reset Modal */}
-        {showResetModal && (
-          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-            <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-8 space-y-6 animate-in zoom-in-95 duration-200">
-              <div className="text-center space-y-2">
-                <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </div>
-                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Skutečně resetovat?</h3>
-                <p className="text-sm text-slate-500 font-medium">Tato akce vymaže veškerou dnešní prezenci a hlasování. Nelze vrátit zpět.</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <button 
-                  onClick={() => setShowResetModal(false)}
-                  className="py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
-                >
-                  Zpět
-                </button>
-                <button 
-                  onClick={handleResetConfirm}
-                  className="py-4 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-100"
-                >
-                  Resetovat
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+        {/* Reset Modal removed - now handled globally in App.tsx */}
 
         {fetchError && (
           <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex items-start gap-2 text-red-600">

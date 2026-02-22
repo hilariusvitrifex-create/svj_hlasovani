@@ -41,6 +41,7 @@ const App: React.FC = () => {
   const [isVotingMode, setIsVotingMode] = useState(false);
   const [editingUnit, setEditingUnit] = useState<Unit | null>(null);
   const [fetchError, setFetchError] = useState<{message: string, raw?: string} | null>(null);
+  const [showResetModal, setShowResetModal] = useState(false);
 
   useEffect(() => {
     localStorage.setItem('svj_attendance_v3', JSON.stringify(units));
@@ -142,6 +143,10 @@ const App: React.FC = () => {
   };
 
   const handleResetAttendance = useCallback(() => {
+    setShowResetModal(true);
+  }, []);
+
+  const confirmReset = useCallback(() => {
     setUnits(prev => prev.map(u => ({ 
       ...u, 
       isPresent: false, 
@@ -149,6 +154,7 @@ const App: React.FC = () => {
       vote: null
     })));
     setIsVotingMode(false);
+    setShowResetModal(false);
     setStateVersion(v => v + 1);
   }, []);
 
@@ -296,7 +302,6 @@ const App: React.FC = () => {
         presentCount={stats.presentCount} 
         totalCount={stats.totalCount} 
         totalShare={stats.totalShare} 
-        onReset={handleResetAttendance}
         isSyncing={isSyncing}
         isVotingMode={isVotingMode}
         onToggleVoting={toggleVotingMode}
@@ -361,9 +366,40 @@ const App: React.FC = () => {
               isSyncing={isSyncing}
               fetchError={fetchError}
             />
-            <ExportResults units={units} stats={stats} />
+            <ExportResults units={units} stats={stats} isVotingMode={isVotingMode} />
           </div>
         </div>
+        {/* Global Reset Modal */}
+        {showResetModal && (
+          <div className="fixed inset-0 z-[300] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+            <div className="bg-white w-full max-w-sm rounded-3xl shadow-2xl p-8 space-y-6 animate-in zoom-in-95 duration-200">
+              <div className="text-center space-y-2">
+                <div className="w-16 h-16 bg-red-100 text-red-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-black text-slate-900 uppercase tracking-tight">Skutečně resetovat?</h3>
+                <p className="text-sm text-slate-500 font-medium">Tato akce vymaže veškerou dnešní prezenci a hlasování. Nelze vrátit zpět.</p>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <button 
+                  onClick={() => setShowResetModal(false)}
+                  className="py-4 bg-slate-100 text-slate-600 rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-slate-200 transition-all"
+                >
+                  Zpět
+                </button>
+                <button 
+                  onClick={confirmReset}
+                  className="py-4 bg-red-600 text-white rounded-2xl font-black text-xs uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-100"
+                >
+                  Resetovat
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </main>
 
       {editingUnit && (
