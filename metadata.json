@@ -1,5 +1,5 @@
 {
-  "name": "SVJ Prezence v2.9 Professional",
-  "description": "Pokročilý systém pro správu prezence a hlasování na schůzích SVJ. Verze 2.9 přidává bezpečnostní prvky: potvrzení resetu a heslem chráněnou synchronizaci s tabulkou.",
+  "name": "SVJ Prezence v3.0 Professional",
+  "description": "Pokročilý systém pro správu prezence a hlasování na schůzích SVJ. Verze 3.0 přináší plnohodnotná modální okna pro zabezpečení resetu a synchronizace heslem.",
   "requestFramePermissions": []
 }
