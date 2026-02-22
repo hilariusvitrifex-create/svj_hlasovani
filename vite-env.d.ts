@@ -302,7 +302,6 @@ const App: React.FC = () => {
         presentCount={stats.presentCount} 
         totalCount={stats.totalCount} 
         totalShare={stats.totalShare} 
-        onReset={handleResetAttendance}
         isSyncing={isSyncing}
         isVotingMode={isVotingMode}
         onToggleVoting={toggleVotingMode}
@@ -367,7 +366,7 @@ const App: React.FC = () => {
               isSyncing={isSyncing}
               fetchError={fetchError}
             />
-            <ExportResults units={units} stats={stats} />
+            <ExportResults units={units} stats={stats} isVotingMode={isVotingMode} />
           </div>
         </div>
         {/* Global Reset Modal */}
