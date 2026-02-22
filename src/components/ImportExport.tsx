@@ -31,6 +31,32 @@ const ImportExport: React.FC<ImportExportProps> = ({
   const [localError, setLocalError] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showConfig, setShowConfig] = useState(false);
+  const [showResetConfirm, setShowResetConfirm] = useState(false);
+  const [showSyncPassword, setShowSyncPassword] = useState(false);
+  const [passwordInput, setPasswordInput] = useState('');
+  const [passwordError, setPasswordError] = useState(false);
+
+  const handleSyncClick = () => {
+    const requiredPassword = import.meta.env.VITE_SYNC_PASSWORD;
+    if (requiredPassword) {
+      setShowSyncPassword(true);
+      setPasswordError(false);
+    } else {
+      onSyncAll();
+    }
+  };
+
+  const handlePasswordSubmit = () => {
+    const requiredPassword = import.meta.env.VITE_SYNC_PASSWORD;
+    if (passwordInput === requiredPassword) {
+      setShowSyncPassword(false);
+      setPasswordInput('');
+      onSyncAll();
+    } else {
+      setPasswordError(true);
+      setTimeout(() => setPasswordError(false), 2000);
+    }
+  };
 
   const fileToBase64 = (file: File): Promise<string> => {
     return new Promise((resolve, reject) => {
@@ -144,7 +170,7 @@ const ImportExport: React.FC<ImportExportProps> = ({
           </button>
 
           <button
-            onClick={onSyncAll}
+            onClick={handleSyncClick}
             disabled={isSyncing}
             className={`py-4 rounded-xl font-bold text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg
               ${isSyncing ? 'bg-emerald-200 text-emerald-400 shadow-none' : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-emerald-100'}
@@ -161,15 +187,64 @@ const ImportExport: React.FC<ImportExportProps> = ({
           </button>
         </div>
 
-        <button
-          onClick={onReset}
-          className="w-full py-3 bg-red-50 text-red-600 border-2 border-red-100 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-100 transition-all flex items-center justify-center gap-2"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-          </svg>
-          Resetovat celou prezenci
-        </button>
+        {showSyncPassword && (
+          <div className="p-4 bg-emerald-50 border border-emerald-100 rounded-xl space-y-3 animate-in fade-in slide-in-from-top-2">
+            <div className="flex items-center justify-between">
+              <label className="block text-[10px] font-black text-emerald-700 uppercase tracking-widest">Zadejte heslo pro synchronizaci</label>
+              <button onClick={() => setShowSyncPassword(false)} className="text-emerald-400 hover:text-emerald-600">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <input 
+                type="password" 
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handlePasswordSubmit()}
+                className={`flex-1 px-3 py-2 text-xs bg-white border rounded-lg outline-none transition-colors ${passwordError ? 'border-red-500 bg-red-50' : 'border-emerald-200 focus:border-emerald-500'}`}
+                placeholder="Heslo..."
+                autoFocus
+              />
+              <button 
+                onClick={handlePasswordSubmit}
+                className="px-4 py-2 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all"
+              >
+                Potvrdit
+              </button>
+            </div>
+            {passwordError && <p className="text-[9px] font-bold text-red-500 uppercase">Nesprávné heslo</p>}
+          </div>
+        )}
+
+        {showResetConfirm ? (
+          <div className="grid grid-cols-2 gap-3 animate-in fade-in zoom-in-95 duration-200">
+            <button
+              onClick={() => {
+                onReset();
+                setShowResetConfirm(false);
+              }}
+              className="py-3 bg-red-600 text-white rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-700 transition-all shadow-lg shadow-red-100"
+            >
+              Ano, Resetovat
+            </button>
+            <button
+              onClick={() => setShowResetConfirm(false)}
+              className="py-3 bg-slate-100 text-slate-600 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-slate-200 transition-all"
+            >
+              Zpět
+            </button>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowResetConfirm(true)}
+            className="w-full py-3 bg-red-50 text-red-600 border-2 border-red-100 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-red-100 transition-all flex items-center justify-center gap-2"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+            </svg>
+            Resetovat celou prezenci
+          </button>
+        )}
 
         {fetchError && (
           <div className="p-3 bg-red-50 border border-red-100 rounded-xl flex items-start gap-2 text-red-600">

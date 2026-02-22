@@ -1,5 +1,5 @@
 {
-  "name": "SVJ Prezence v2.8 Professional",
-  "description": "Pokročilý systém pro správu prezence a hlasování na schůzích SVJ. Verze 2.8 přináší izolovaný tiskový engine přes iframe, který řeší problémy s okraji a prázdnými stránkami na iPadu i Windows.",
+  "name": "SVJ Prezence v2.9 Professional",
+  "description": "Pokročilý systém pro správu prezence a hlasování na schůzích SVJ. Verze 2.9 přidává bezpečnostní prvky: potvrzení resetu a heslem chráněnou synchronizaci s tabulkou.",
   "requestFramePermissions": []
 }
